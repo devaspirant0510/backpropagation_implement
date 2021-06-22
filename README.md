@@ -8,4 +8,5 @@
 
 ![initial](https://user-images.githubusercontent.com/68223593/122865512-78636380-d361-11eb-9e32-d8662c9c3aa4.png)
 
-$$\sum (\alpha \pm \beta)$$
+![CodeCogsEqn](https://user-images.githubusercontent.com/68223593/122868280-b6fb1d00-d365-11eb-85c2-4acba7508d05.gif)
+
