@@ -22,18 +22,18 @@ y_train = np.array([
 
 
 # 손실 함수
-def MSE(s, y):
+def MSE(s: np.array, y: np.array) -> np.array:
     return 1 / (2 * len(s)) * np.sum((s - y) ** 2)
 
 
 # 활성화 함수
-def sigmoid(x):
+def sigmoid(x: np.array) -> np.array:
     return 1 / (1 + np.exp(-x))
 
 
 # 모델
 class Model(object):
-    def __init__(self, x, y, lr=0.01, epoch=1000):
+    def __init__(self, x: np.array, y: np.array, lr: float = 0.01, epoch: int = 1000):
         """
         레이어 정의
         :param x: input 값
@@ -50,15 +50,23 @@ class Model(object):
         self.lr = lr
         self.epoch = epoch
 
-    # 생성자에서 정의한 레이어로 순전파 연산
-    def forward(self, x):
+    def forward(self, x: np.array) -> np.array:
+        """
+        생성자에서 정의한 레이어로 순전파 연산
+        :param x: 입력값
+        :return: forward propagation 한 결과
+        """
         self.z1 = x @ self.w1 + self.b1
         self.s1 = sigmoid(self.z1)
         self.z2 = self.s1 @ self.w2 + self.b2
         self.s2 = sigmoid(self.z2)
         return self.s2
 
-    def backward(self):
+    def backward(self) -> None:
+        """
+        forward propagation 을진행한후 backpropagation 연산
+        :return:
+        """
         # 손실함수 미분
         dLoss = self.s2 - self.output
         # 활성화 함수 미분
@@ -78,26 +86,27 @@ class Model(object):
         self.__update(self.lr)
 
     # 손실함수로 loss 값 리턴
-    def get_los(self):
+    def get_loss(self) -> MSE:
+
         if self.s2 is None:
             return None
         return MSE(self.s2, self.output)
 
     # backpropagation 연산 후 업데이트
-    def __update(self, lr):
+    def __update(self, lr: float) -> None:
         self.w1 -= lr * self.dw1
         self.b1 -= lr * self.db1
         self.w2 -= lr * self.dw2
         self.b2 -= lr * self.db2
 
     # 정확도 측정
-    def accuracy(self, s, y):
+    def accuracy(self, s: np.array, y: np.array) -> np.array:
         s_mask = np.where(s >= 0.5, 1, 0)
         checking = np.sum(s_mask == y)
         return checking / len(s)
 
     # 학습
-    def train(self, log_loss=False, log_step=10, draw_graph=True):
+    def train(self, log_loss: bool = False, log_step: int = 10, draw_graph: bool = True) -> None:
         """
 
         :param log_loss: 학습시키면서 loss 값을 보여줄건지 결정 True 면 보여주고 False 면 안보여줌
@@ -108,39 +117,39 @@ class Model(object):
         # 정확도와 loss 값을 저장하여 그래프에 표시
         accuracy_list = []
         loss_list = []
-        for i in range(1,self.epoch+1):
+        for i in range(1, self.epoch + 1):
             yhat = self.forward(self.input)
             self.backward()
-            loss = model.get_los()
+            loss = model.get_loss()
             # 1 epoch 마다 loss 값과 accuracy 값을 저장
             acc = model.accuracy(yhat, self.output)
             loss_list.append(loss)
             accuracy_list.append(acc)
             # log_loss 가 True 일때 지정한 스템마다 loss 값 출력
-            if log_loss is True and self.epoch % log_step == 0:
+            if log_loss is True and i % log_step == 0:
                 print(f"{i}/{self.epoch}\t\tloss:{loss}\t\taccuracy:{acc}")
         # draw_graph 가 True 일때 loss,acc 그래프 그리기
         if draw_graph:
             fig, ax = plt.subplots()
-            ax.plot(loss_list, "--",label="loss")
+            ax.plot(loss_list, "--", label="loss")
             ax.set_ylabel("loss")
             ax.legend(loc="lower right")
             # y축 두개로 만듦
             ax2 = ax.twinx()
-            ax2.plot(accuracy_list, "r",label="accuracy")
+            ax2.plot(accuracy_list, "r", label="accuracy")
             ax2.set_ylabel("accuracy")
             ax2.legend(loc="upper right")
             plt.show()
 
     # 입력값을 받아 forward 연산
-    def check(self, input_):
+    def check(self, input_: np.array) -> np.array:
         return self.forward(input_)
 
 
-model = Model(x_train, y_train, lr=0.3, epoch=1000)
+model = Model(x_train, y_train, lr=0.4, epoch=1000)
 model.train(log_loss=True, log_step=100)
 
-print(model.check(np.array([[0., 0.]])))
-print(model.check(np.array([[0., 1.]])))
-print(model.check(np.array([[1., 0.]])))
-print(model.check(np.array([[1., 1.]])))
+print(f"input : [0, 0] correct : [0 ] predict :{model.check(np.array([[0., 0.]]))[0]}")
+print(f"input : [0, 1] correct : [1 ] predict :{model.check(np.array([[0., 1.]]))[0]}")
+print(f"input : [1, 0] correct : [1 ] predict :{model.check(np.array([[1., 0.]]))[0]}")
+print(f"input : [1, 1] correct : [0 ] predict :{model.check(np.array([[1., 1.]]))[0]}")
